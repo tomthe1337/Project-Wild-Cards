@@ -1,12 +1,32 @@
-This is the game prototype ive been working on.
+PROTOTYPE - jump the gap
 
 I used flash develop and flixel.
 
-You'll need to add the classpath to the flixel lib on your machine in flashdevelop to run it.
+You'll need to add the classpath to the flixel in flashdevelop.
 
 Things i'm planning on doing at some point:
 
 1- instead of rects for the buildings a random assortment of animated sprites
-2- hitboxes for weapons / smaller hitbox for sliding sprite
-3- template baddie class that can be extended.
-4- template powerup class
+2- hitboxes for different weapons
+3- different baddies / animated sprites
+4- powerups?
+5- weather foreground effect - other sprites change
+6- day/night - silhouette foreground / player / buildings
+7- balancing - testing
+
+GRAPHICS to do
+
+'buildings' - dont have to be buildings, could be anything
+background - animated
+foreground - animated
+player - run, jump, fall, slide/roll attack
+obstacles - could be anything.
+
+SOUND
+
+MENU SCREEN
+
+GAMEOVER
+
+NARRATIVE
+
