@@ -1,1 +1,12 @@
-Hello Worldzzz
+This is the game prototype ive been working on.
+
+I used flash develop and flixel.
+
+You'll need to add the classpath to the flixel lib on your machine in flashdevelop to run it.
+
+Things i'm planning on doing at some point:
+
+1- instead of rects for the buildings a random assortment of animated sprites
+2- hitboxes for weapons / smaller hitbox for sliding sprite
+3- template baddie class that can be extended.
+4- template powerup class
