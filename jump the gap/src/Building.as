@@ -38,7 +38,7 @@ package
 			this.velocity.x = -player_runSpeed;
 			super.update();
 		}
-		public function setRunSpeed(speed:int):void
+		public function setRunSpeed(speed:Number):void
 		{
 			this.player_runSpeed = speed;
 		}

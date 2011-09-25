@@ -16,7 +16,7 @@
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
     <class path="src" />
-    <class path="..\..\FlixelGames\flixel" />
+    <class path="..\..\Desktop\Work\FlixelGames\flixel" />
   </classpaths>
   <!-- Build options -->
   <build>

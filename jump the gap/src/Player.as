@@ -1,6 +1,7 @@
 package  
 {
 	import org.flixel.FlxSprite;
+	import org.flixel.FlxObject;
 	import org.flixel.FlxG;
 	/**
 	 * ...
@@ -13,7 +14,7 @@ package
 		
 		[Embed(source = '../lib/gfx/red_ninjaed.png')]
 		private var redNinjaSheet:Class;
-		
+		public var attacking:Boolean;
 		private var slideCounter:int;	// used to time different animations
 		private var slideCooldown:int;
 		private var weaponCounter:int;
@@ -33,6 +34,8 @@ package
 			this.acceleration.y = 1000;
 			this.x = x;
 			this.y = y;
+			this.offset.x = -30;
+			this.allowCollisions = 0x1010;	//d u r l
 		}
 		override public function update():void	// update - called each frame by parent
 		{
@@ -40,27 +43,31 @@ package
 				slideCounter = 24;
 				slideCooldown = 65;
 			} 
-			if (FlxG.keys.pressed("X") && weaponCounter == 0 && weaponCooldown < 30) {
+			if ((FlxG.keys.justPressed("X") || FlxG.keys.justPressed("RIGHT"))&& weaponCounter == 0 && weaponCooldown < 15) {
 				weaponCounter = 12;
-				weaponCooldown = 65;
+				weaponCooldown = 40;
 			}
 			slideCooldown--;
 			weaponCooldown--;
-			
 			if (slideCounter > 0 && this.velocity.y == 0) {
 				play("slide");
 				slideCounter--;
+				attacking = false;
 			}else if (weaponCounter > 0) {
 				play("attack");
+				attacking = true;
 				weaponCounter--;
 			}else if ((FlxG.keys.pressed("SPACE") || FlxG.keys.pressed("UP")) && this.velocity.y != 0) {
 				play("jump");
+				attacking = false;
 			}else if (this.velocity.y > 3) {
 				play("fall");
 				slideCounter = 0;
 				slideCooldown = 0;
+				attacking = false;
 			}else{
 				play("run");
+				attacking = false;
 			}
 			
 			super.update();
