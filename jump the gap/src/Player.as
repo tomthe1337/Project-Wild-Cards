@@ -35,7 +35,6 @@ package
 			this.x = x;
 			this.y = y;
 			this.offset.x = -30;
-			this.allowCollisions = 0x1010;	//d u r l
 		}
 		override public function update():void	// update - called each frame by parent
 		{
@@ -72,16 +71,5 @@ package
 			
 			super.update();
 		}
-		
-	/*	public function getRunSpeed():int			// unused getter / setter methods
-		{
-			return this.runSpeed;
-		}
-		public function setRunSpeed(speed:int):void
-		{
-			this.runSpeed = speed;
-		}
-	*/	
 	}
-
 }

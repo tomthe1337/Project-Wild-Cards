@@ -8,7 +8,7 @@ Things i'm planning on doing at some point:
 
 1- instead of rects for the buildings a random assortment of animated sprites
 2- hitboxes for different weapons
-3- different baddies / animated sprites
+3- different baddies / animated sprites		SORT OF DONE
 4- powerups?
 5- weather foreground effect - other sprites change
 6- day/night - silhouette foreground / player / buildings
@@ -28,5 +28,8 @@ MENU SCREEN
 
 GAMEOVER
 
+WEAPONS/SELECT MENU
+
 NARRATIVE
+	stick men?
 

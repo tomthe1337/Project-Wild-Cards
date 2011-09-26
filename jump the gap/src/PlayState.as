@@ -10,7 +10,7 @@ package
 		private var bgs:FlxGroup;	// group of background sprites		
 		private var fgs:FlxGroup;	// group of foreground sprites
 		private var grp_buildings:Array;	// array of buildings
-		private var baddies:FlxGroup;	// group of baddies
+		private var obstacles:FlxGroup;	// group of baddies
 		
 		private var runSpeed:Number;	// players run speed - used to increase scroll rate of buildings, foregrounds (and baddies eventually)
 		private var score:int;		// tracks distance ran
@@ -18,7 +18,7 @@ package
 		
 		override public function create():void 
 		{	
-			player = new Player(FlxG.width / 10, FlxG.height/2, 10);	// init player 
+			player = new Player(FlxG.width / 10, 100, 10);	// init player 
 			runSpeed = 150;												// and some vars
 			score = 0;
 			stage = 0;
@@ -28,15 +28,15 @@ package
 			add(bgs);			// add backgrounds first, so all other sprites drawn on top
 			
 			grp_buildings = new Array();	// init buildings, add first 3 (always in same place)
-			grp_buildings.push(new Building(0, 380, runSpeed));
-			grp_buildings.push(new Building(grp_buildings[0].x + grp_buildings[0].width, 380, runSpeed));
-			grp_buildings.push(new Building(grp_buildings[1].x + grp_buildings[1].width, 380, runSpeed));
+			grp_buildings.push(new Building(0, 280, runSpeed));
+			grp_buildings.push(new Building(grp_buildings[0].x + grp_buildings[0].width, 280, runSpeed));
+			grp_buildings.push(new Building(grp_buildings[1].x + grp_buildings[1].width, 280, runSpeed));
 			add(grp_buildings[0] );
 			add(grp_buildings[1]);
 			add(grp_buildings[2]);
 			
-			baddies = new FlxGroup();
-			add(baddies);
+			obstacles = new FlxGroup();
+			add(obstacles);
 			
 			add(player);
 			
@@ -49,6 +49,16 @@ package
 		override public function update():void
 		{	
 			player.x = FlxG.width / 10;
+			doCollisionDetection();
+			checkUserInput();
+			updateBuildings();	
+			updateObstacles();
+			updateSpeed();
+			
+			super.update();	// update parent - draws all sprites added to this	
+		}
+		private function checkUserInput():void
+		{
 			if((FlxG.keys.justPressed("SPACE") || FlxG.keys.justPressed("UP")) && player.isTouching(FlxObject.FLOOR)){
 				player.velocity.y = -player.maxVelocity.y / 2;	// jump key handling
 			}
@@ -60,18 +70,6 @@ package
 			if (FlxG.keys.justReleased("ENTER")) { FlxG.resetState(); }		// used for testing
 			if (FlxG.keys.justPressed("Q")) { }
 			if (FlxG.keys.justPressed("W")) { }
-			
-			for (var b:int = 0; b < baddies.length; b++) {		// pixel perfect collision check
-				if (FlxCollision.pixelPerfectCheck(player, baddies.members[b])) {
-					playerHitObstacle(player, baddies.members[b]);
-				}
-			}
-			
-			super.update();	// update parent - draws all sprites added to this
-			
-			updateBuildings();	
-			updateObstacles();
-			updateSpeed();	
 		}
 		/*
 		 * checks if a building has gone past
@@ -87,7 +85,6 @@ package
 					grp_buildings = grp_buildings.reverse();
 					addBuildingToEnd();
 				}
-				FlxG.collide(player, grp_buildings[i], playerHitBuilding);	// check if player has hit a building
 			}
 		}
 		/*
@@ -95,7 +92,7 @@ package
 		 */
 		private function addBuildingToEnd():void
 		{
-			grp_buildings.push(new Building(grp_buildings[1].x + grp_buildings[1].width + ((Math.random()*140)+(30*stage)), grp_buildings[1].y + (Math.random() * (FlxG.height - grp_buildings[1].y ))- 80, runSpeed));
+			grp_buildings.push(new Building((grp_buildings[1].x + grp_buildings[1].width + ((Math.random()*140)+(stage*20)))+player.width, grp_buildings[1].y + ((Math.random() * (FlxG.height - grp_buildings[1].y-100))- 80), runSpeed));
 			add(grp_buildings[2]);
 			addObstacle();
 		}
@@ -104,22 +101,10 @@ package
 		 */
 		private function addObstacle():void
 		{
-			switch(Math.ceil(Math.random() * 2)) 
-			{
-				case 1:
-					if(grp_buildings[2].width >= 650){
-						var newBaddie:Baddie;
-						newBaddie = new Baddie( (grp_buildings[2].x + 300) + ( Math.random()*((grp_buildings[2].width-300)-300) ), grp_buildings[2].y-50, runSpeed);
-						baddies.add(newBaddie);
-					}
-					break;
-				case 2:
-					if(grp_buildings[2].width >= 650){
-						var newBaddie2:Baddie;
-						newBaddie2 = new Baddie( (grp_buildings[2].x + 300) + ( Math.random()*((grp_buildings[2].width-300)-300) ), grp_buildings[2].y-100, runSpeed);
-						baddies.add(newBaddie2);
-					}
-					break;
+			if(grp_buildings[2].width >= 800){
+				var newBaddie:Obstacle;
+				newBaddie = new Obstacle( (grp_buildings[2].x + 300) + ( Math.random()*((grp_buildings[2].width-300)-300) ), grp_buildings[2].y-96, runSpeed, Math.round(Math.random()));
+				obstacles.add(newBaddie);
 			}
 		}
 		/*
@@ -127,14 +112,13 @@ package
 		 */
 		private function updateObstacles():void
 		{
-			for (var u:int = 0; u < baddies.length; u++) {	
-				if (baddies.members[u].dead == true) {
-					baddies.members[u].kill();
-					baddies.members[u].destroy();
-					baddies.remove(baddies.members[u], true);
+			for (var u:int = 0; u < obstacles.length; u++) {	
+				if (obstacles.members[u].dead == true) {
+					obstacles.members[u].kill();
+					obstacles.members[u].destroy();
+					obstacles.remove(obstacles.members[u], true);
 				}
 			}
-			//FlxG.collide(player, baddies, playerHitObstacle);
 		}
 		/*
 		 * updates speed/stage and all dependant objects
@@ -144,7 +128,6 @@ package
 			score += 1;
 			if (score % 250 == 0) {	// at levelup....
 				stage++;
-				//addObstacle();
 			}
 			for (var t:int = 0; t < grp_buildings.length; t++) {	// change speed of buildings
 				grp_buildings[t].setRunSpeed(runSpeed);
@@ -155,25 +138,52 @@ package
 			for (var k:int = 0; k < fgs.length; k++) {				// change speed of backgrounds
 				bgs.members[k].setRunSpeed(runSpeed/5);
 			}
-			for (var w:int = 0; w < baddies.length; w++) {				// change speed of backgrounds
-				baddies.members[w].setRunSpeed(runSpeed);
+			for (var w:int = 0; w < obstacles.length; w++) {		// change speed of obstacles
+				obstacles.members[w].setRunSpeed(runSpeed);
+			}
+		}
+		
+		
+		private function doCollisionDetection():void
+		{
+			for (var a:int = 0; a < grp_buildings.length; a++) {
+				FlxG.collide(player, grp_buildings[a], playerHitBuilding);	// check if player has hit a building
+			}
+			for (var b:int = 0; b < obstacles.length; b++) {		// pixel perfect collision check
+				if (FlxCollision.pixelPerfectCheck(player, obstacles.members[b])) {
+					playerHitObstacle(player, obstacles.members[b]);
+				}
 			}
 		}
 		/*
 		 * handler for collision between player and any building
 		 */
-		private function playerHitBuilding(pl:Player, bd:Building):void
+		private function playerHitBuilding(pl:Player, bd:Building):void		// STILL PRETTY BUGGY------FIX ME!!!!
 		{
-			if (runSpeed < 700) { runSpeed += 2; }
-			else{runSpeed += .1;}
+			if(pl.isTouching(FlxObject.FLOOR)) {
+				if (runSpeed < 700) { runSpeed += 2; }
+				else { runSpeed += .1; }
+			}else if (pl.isTouching(FlxObject.RIGHT)) {
+				if((bd.y - pl.y) >= (pl.height/8)){// if hit building in lower eighth of body
+					player.y = bd.y - pl.height;
+					runSpeed /= 2;
+				}else{
+					FlxG.shake(0.01,0.025);
+					runSpeed = 0;
+				}
+			}else{
+				FlxG.shake(0.01,0.025);
+				trace("dedz");
+				runSpeed = 0;
+			}
 		}
-		private function playerHitObstacle(pl:Player, ob:Baddie):void
+		private function playerHitObstacle(pl:Player, ob:Obstacle):void
 		{
 			if (pl.attacking == true) {
-				trace("killed it");
+				//trace("killed it");
 			}else {
-				trace(" got hit");
 				runSpeed /= 2;
+				FlxG.shake(0.01);
 			}
 			ob.dead = true;
 		}
