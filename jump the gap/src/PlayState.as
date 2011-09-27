@@ -16,12 +16,20 @@ package
 		private var score:int;		// tracks distance ran
 		private var stage:int;		// used to control when run speed changed
 		
+		private var distance:Number;	// used to store how far ran in current game
+		private var distanceText:FlxText;	// for displaying distanse
+		
 		override public function create():void 
 		{	
 			player = new Player(FlxG.width / 10, 100, 10);	// init player 
 			runSpeed = 150;												// and some vars
 			score = 0;
 			stage = 0;
+			distance = 0;
+			
+			distanceText = new FlxText(10, 15, FlxG.width/2);
+			distanceText.setFormat(null, 24, 0xffffffff);
+			
 			bgs = new FlxGroup();										// init backgrounds		
 			bgs.add(new Background(0, runSpeed/5));
 			bgs.add(new Background(2400, runSpeed / 5));
@@ -45,17 +53,33 @@ package
 			fgs.add(new Foreground(0, runSpeed*1.5));
 			fgs.add(new Foreground(2400, runSpeed*1.5));		
 			add(fgs);
+			
+			add(distanceText);
 		}	
 		override public function update():void
 		{	
 			player.x = FlxG.width / 10;
+			doHUD();
 			doCollisionDetection();
 			checkUserInput();
 			updateBuildings();	
 			updateObstacles();
 			updateSpeed();
+			updateDistance();
 			
 			super.update();	// update parent - draws all sprites added to this	
+		}
+		private function updateDistance():void
+		{
+			if (runSpeed < 700) {
+				distance += runSpeed/1000;
+			}else{
+				distance += (runSpeed / 500);
+			}
+		}
+		private function doHUD():void
+		{
+			distanceText.text = "Distance ran: " + Math.floor(distance) + "m";
 		}
 		private function checkUserInput():void
 		{
@@ -92,7 +116,7 @@ package
 		 */
 		private function addBuildingToEnd():void
 		{
-			grp_buildings.push(new Building((grp_buildings[1].x + grp_buildings[1].width + ((Math.random()*140)+(stage*20)))+player.width, grp_buildings[1].y + ((Math.random() * (FlxG.height - grp_buildings[1].y-100))- 80), runSpeed));
+			grp_buildings.push(new Building((grp_buildings[1].x + grp_buildings[1].width + ((Math.random()*140)+(stage*10)))+player.width, grp_buildings[1].y + ((Math.random() * (FlxG.height - grp_buildings[1].y-100))- 80), runSpeed));
 			add(grp_buildings[2]);
 			addObstacle();
 		}
@@ -164,28 +188,33 @@ package
 				if (runSpeed < 700) { runSpeed += 2; }
 				else { runSpeed += .1; }
 			}else if (pl.isTouching(FlxObject.RIGHT)) {
-				if((bd.y - pl.y) >= (pl.height/8)){// if hit building in lower eighth of body
+				if((bd.y - pl.y) >= 60){	// if player is 60 or more pixels above ledge (ie, just clipped it)
 					player.y = bd.y - pl.height;
 					runSpeed /= 2;
 				}else{
 					FlxG.shake(0.01,0.025);
 					runSpeed = 0;
+					FlxG.fade(0xff000000, 1.5, restartState);
 				}
 			}else{
-				FlxG.shake(0.01,0.025);
-				trace("dedz");
+				FlxG.shake(0.02,0.025);
 				runSpeed = 0;
 			}
 		}
 		private function playerHitObstacle(pl:Player, ob:Obstacle):void
 		{
-			if (pl.attacking == true) {
-				//trace("killed it");
+			if (pl.attacking == true && ob.type != 0) {
+				// killed an obstacle
+				FlxG.flash(0xffaa0000, 0.3);
 			}else {
 				runSpeed /= 2;
 				FlxG.shake(0.01);
 			}
 			ob.dead = true;
+		}
+		private function restartState():void
+		{
+			FlxG.resetState();
 		}
 		
 	}

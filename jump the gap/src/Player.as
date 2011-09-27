@@ -24,7 +24,7 @@ package
 		{
 			this.runSpeed = run;
 			this.loadGraphic(redNinjaSheet, true, false, 96, 84);
-			this.addAnimation("run", [0,1,2,3,4, 5],runSpeed);	// set animations
+			this.addAnimation("run", [0,1,2,3,4,5],runSpeed);	// set animations
 			this.addAnimation("jump", [6, 6, 8, 8, 8, 8, 7, 7, 7, 7], runSpeed);
 			this.addAnimation("slide", [9], 1, false);
 			this.addAnimation("attack", [10],1, false);
