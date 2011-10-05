@@ -14,7 +14,8 @@ package
 		
 		[Embed(source = '../lib/gfx/red_ninjaed.png')]
 		private var redNinjaSheet:Class;
-		public var attacking:Boolean;
+		public var attacking:Boolean;	// true if player is attacking
+		public var sliding:Boolean;		// true if player is sliding
 		private var slideCounter:int;	// used to time different animations
 		private var slideCooldown:int;
 		private var weaponCounter:int;
@@ -35,6 +36,8 @@ package
 			this.x = x;
 			this.y = y;
 			this.offset.x = -30;
+			this.attacking = false;
+			this.sliding = false;
 		}
 		override public function update():void	// update - called each frame by parent
 		{
@@ -52,21 +55,26 @@ package
 				play("slide");
 				slideCounter--;
 				attacking = false;
+				sliding = true;
 			}else if (weaponCounter > 0) {
 				play("attack");
 				attacking = true;
+				sliding = false;
 				weaponCounter--;
 			}else if ((FlxG.keys.pressed("SPACE") || FlxG.keys.pressed("UP")) && this.velocity.y != 0) {
 				play("jump");
 				attacking = false;
+				sliding = false;
 			}else if (this.velocity.y > 3) {
 				play("fall");
 				slideCounter = 0;
 				slideCooldown = 0;
 				attacking = false;
+				sliding = false;
 			}else{
 				play("run");
 				attacking = false;
+				sliding = false;
 			}
 			
 			super.update();

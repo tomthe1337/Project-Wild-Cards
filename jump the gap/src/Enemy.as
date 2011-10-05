@@ -3,34 +3,35 @@ package
 	import org.flixel.FlxSprite;
 	import org.flixel.FlxG;
 
-	public class Obstacle extends FlxSprite
+	public class Enemy extends FlxSprite
 	{
 		private var scrollSpeed:Number;
 		public var dead:Boolean;
-		[Embed(source = '../lib/gfx/obstacles.png')]
-		private var barr:Class;
 		public var type:int;
+		public var shootTimer:int;
 		
-		public function Obstacle(px:Number, py:Number, speed:Number, ty:int)
+		[Embed(source = '../lib/gfx/enemies.png')]
+		private var stripEnemy:Class;
+		
+		public function Enemy(px:Number, py:Number, speed:Number, ty:int)
 		{
-			this.loadGraphic(barr, true, false, 48, 96);
-			this.addAnimation("bounce", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0], 20);
-			this.addAnimation("block", [10,11], 2);
+			this.loadGraphic(stripEnemy, true, false, 96, 128);
+			this.addAnimation("throw", [0, 1], 2);
 			this.x = px;
 			this.y = py;
 			this.scrollSpeed = speed;
 			this.dead = false;
 			this.type = ty;
+			this.shootTimer = 299;
 		}
 		override public function update():void
 		{
+			this.play("throw");
 			this.velocity.x = -scrollSpeed;
-			if (this.type == 0) { play("bounce"); }
-			else if (this.type == 1) { play("block"); }
+			this.shootTimer++;
 			if (this.x <= 0-this.width) {
 				this.dead = true;
-			}
-			
+			}	
 			super.update();
 		}
 		public function setRunSpeed(speed:int):void
